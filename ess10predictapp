@@ -1,0 +1,59 @@
+# Import necessary libraries
+import streamlit as st
+import pandas as pd
+
+# Function to calculate prediction
+def calculate_prediction(coefficients, predictors):
+  prediction = coefficients['Constant']
+  for key in predictors:
+      prediction += coefficients[key] * predictors[key]
+  return prediction
+
+# Streamlit app
+def main():
+  st.title("Regression Prediction App")
+
+  # Input for coefficients
+  st.header("Enter Regression Coefficients")
+  coefficients = {
+      'Constant': st.number_input("Constant", value=3.70),
+      'Political Trust': st.number_input("Political Trust Coefficient", value=0.03),
+      'Conspiracy Beliefs': st.number_input("Conspiracy Beliefs Coefficient", value=0.30),
+      'Importance of Democracy': st.number_input("Importance of Democracy Coefficient", value=-0.05),
+      'Acceptability of Authoritarian Leader': st.number_input("Acceptability of Authoritarian Leader Coefficient", value=0.04),
+      'Gender (Female)': st.number_input("Gender (Female) Coefficient", value=-0.28),
+      'Age': st.number_input("Age Coefficient", value=-0.01),
+      'Higher Education': st.number_input("Higher Education Coefficient", value=0.11),
+      'Comfortable Income': st.number_input("Comfortable Income Coefficient", value=0.25)
+  }
+
+  # Input for predictor values
+  st.header("Enter Predictor Values")
+  predictors = {
+      'Political Trust': st.number_input("Political Trust", value=9),
+      'Conspiracy Beliefs': st.number_input("Conspiracy Beliefs", value=5),
+      'Importance of Democracy': st.number_input("Importance of Democracy", value=10),
+      'Acceptability of Authoritarian Leader': st.number_input("Acceptability of Authoritarian Leader", value=2),
+      'Gender (Female)': st.selectbox("Gender", options=[0, 1], format_func=lambda x: "Female" if x == 1 else "Male"),
+      'Age': st.number_input("Age", value=28),
+      'Higher Education': st.selectbox("Higher Education", options=[0, 1], format_func=lambda x: "Yes" if x == 1 else "No"),
+      'Comfortable Income': st.selectbox("Income", options=[0, 1], format_func=lambda x: "Comfortable" if x == 1 else "Not Comfortable")
+  }
+
+  # Calculate prediction
+  if st.button("Calculate Prediction"):
+      prediction = calculate_prediction(coefficients, predictors)
+      st.write(f"Predicted Outcome: {prediction}")
+
+  # File upload for batch predictions
+  st.header("Upload Data for Batch Predictions")
+  uploaded_file = st.file_uploader("Choose a CSV file", type="csv")
+  if uploaded_file is not None:
+      data = pd.read_csv(uploaded_file)
+      st.write(data)
+      # Assuming the CSV has the same structure as the predictors
+      data['Predicted Outcome'] = data.apply(lambda row: calculate_prediction(coefficients, row), axis=1)
+      st.write(data)
+
+if __name__ == "__main__":
+  main()
